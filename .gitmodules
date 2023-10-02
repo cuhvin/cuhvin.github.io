@@ -1,0 +1,3 @@
+[submodule "cuhvin/themes/hugo-sustain"]
+	path = cuhvin/themes/hugo-sustain
+	url = https://github.com/cuhvin/hugo-sustain
