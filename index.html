@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HAR Project — Kevin Hernandez</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── CSS Variables ─────────────────────────────────────────── */
+    :root {
+      --gold:        #c9a84c;
+      --gold-light:  #e8c97a;
+      --gold-dim:    #7a5f2a;
+      --parchment:   #f2e8cf;
+      --ink:         #1a1208;
+      --bg-dark:     #0d0b08;
+      --bg-mid:      #151009;
+      --bg-panel:    #1c1509;
+      --panel-border:#3a2e10;
+      --text-body:   #d4c9a8;
+      --text-muted:  #8a7a58;
+      --accent-teal: #4a8fa8;
+      --red-rune:    #8b2020;
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-body);
+      font-family: 'Crimson Text', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ── Noise texture overlay ─────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.35;
+    }
+
+    /* ── Navigation ────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(180deg, rgba(13,11,8,0.98) 0%, rgba(13,11,8,0) 100%);
+      backdrop-filter: blur(4px);
+    }
+
+    nav a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    nav a:hover { color: var(--gold-light); }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      position: relative;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,168,76,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 40% at 50% 80%, rgba(74,143,168,0.05) 0%, transparent 60%),
+        var(--bg-dark);
+    }
+
+    /* decorative top rule */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 5rem; left: 50%; transform: translateX(-50%);
+      width: min(700px, 90vw);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .hero-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--gold-light);
+      text-shadow: 0 0 60px rgba(201,168,76,0.3), 0 2px 4px rgba(0,0,0,0.8);
+      max-width: 900px;
+      animation: fadeUp 0.9s 0.1s ease both;
+    }
+
+    .hero-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: var(--gold-dim);
+      margin-top: 1rem;
+      letter-spacing: 0.08em;
+      animation: fadeUp 1s 0.2s ease both;
+    }
+
+    .divider-ornament {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2.5rem auto;
+      width: min(500px, 80vw);
+      animation: fadeUp 1s 0.3s ease both;
+    }
+    .divider-ornament::before,
+    .divider-ornament::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim));
+    }
+    .divider-ornament::after {
+      background: linear-gradient(90deg, var(--gold-dim), transparent);
+    }
+    .divider-ornament span {
+      color: var(--gold);
+      font-size: 1.1rem;
+    }
+
+    .hero-desc {
+      max-width: 660px;
+      color: var(--text-body);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      animation: fadeUp 1s 0.4s ease both;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 2.5rem;
+      animation: fadeUp 1s 0.5s ease both;
+    }
+
+    .badge {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--panel-border);
+      color: var(--gold-dim);
+      background: rgba(201,168,76,0.04);
+      transition: all 0.3s;
+    }
+    .badge:hover {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      background: rgba(201,168,76,0.08);
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 1s 0.6s ease both;
+    }
+
+    .btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 0.85rem 2rem;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      background: transparent;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gold);
+      transform: translateX(-100%);
+      transition: transform 0.3s;
+      z-index: -1;
+    }
+    .btn:hover { color: var(--ink); }
+    .btn:hover::before { transform: translateX(0); }
+    .btn-ghost {
+      border-color: var(--panel-border);
+      color: var(--text-muted);
+    }
+    .btn-ghost:hover { color: var(--ink); }
+    .btn-ghost::before { background: var(--text-muted); }
+
+    /* ── Sections ──────────────────────────────────────────────── */
+    section {
+      padding: 6rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 1rem;
+      text-shadow: 0 0 30px rgba(201,168,76,0.15);
+    }
+
+    .section-rule {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── Panel ─────────────────────────────────────────────────── */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--panel-border);
+      padding: 2rem 2.5rem;
+      position: relative;
+    }
+
+    /* corner ornaments */
+    .panel::before, .panel::after {
+      content: '';
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: var(--gold-dim);
+      border-style: solid;
+    }
+    .panel::before {
+      top: -1px; left: -1px;
+      border-width: 2px 0 0 2px;
+    }
+    .panel::after {
+      bottom: -1px; right: -1px;
+      border-width: 0 2px 2px 0;
+    }
+
+    /* ── Accuracy Callouts ─────────────────────────────────────── */
+    .accuracy-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .accuracy-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--panel-border);
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .accuracy-card::before, .accuracy-card::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      border-color: var(--gold-dim);
+      border-style: solid;
+    }
+    .accuracy-card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .accuracy-card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    .accuracy-card:hover { border-color: var(--gold-dim); }
+
+    .accuracy-card .model-name {
+      font-family: 'Cinzel', serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .accuracy-card .accuracy-num {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(3rem, 6vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1;
+      margin: 0.5rem 0;
+    }
+    .accuracy-card.baseline .accuracy-num { color: var(--accent-teal); }
+    .accuracy-card.temporal .accuracy-num {
+      color: var(--gold-light);
+      text-shadow: 0 0 30px rgba(201,168,76,0.4);
+    }
+
+    .accuracy-card .accuracy-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── F1 Table ──────────────────────────────────────────────── */
+    .f1-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin-bottom: 3rem;
+    }
+
+    .f1-table th {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--panel-border);
+      text-align: left;
+    }
+
+    .f1-table td {
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid rgba(58,46,16,0.4);
+      color: var(--text-body);
+    }
+
+    .f1-table tr:last-child td { border-bottom: none; }
+
+    .f1-table td.score {
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .f1-table td.score.low  { color: #a85050; }
+    .f1-table td.score.mid  { color: #c9a84c; }
+    .f1-table td.score.high { color: #7ab87a; }
+
+    /* ── Image display ─────────────────────────────────────────── */
+    .img-frame {
+      position: relative;
+      border: 1px solid var(--panel-border);
+      padding: 0.5rem;
+      background: var(--bg-panel);
+      margin-bottom: 1rem;
+    }
+    .img-frame::before, .img-frame::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      border-color: var(--gold-dim);
+      border-style: solid;
+      z-index: 1;
+    }
+    .img-frame::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .img-frame::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    .img-frame img {
+      width: 100%;
+      display: block;
+      filter: brightness(0.95) contrast(1.02);
+    }
+
+    .img-caption {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
+    /* ── Two column grid ───────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    /* ── Pipeline steps ────────────────────────────────────────── */
+    .pipeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .pipeline-step {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem 0;
+      border-bottom: 1px solid rgba(58,46,16,0.4);
+      align-items: start;
+    }
+    .pipeline-step:last-child { border-bottom: none; }
+
+    .step-num {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      padding-top: 0.15rem;
+    }
+
+    .step-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      color: var(--gold-light);
+      margin-bottom: 0.4rem;
+    }
+
+    .step-body {
+      color: var(--text-body);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    /* ── Demo callout ──────────────────────────────────────────── */
+    .demo-callout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .demo-verdict {
+      background: var(--bg-panel);
+      border: 1px solid var(--panel-border);
+      padding: 1.5rem;
+      position: relative;
+    }
+    .demo-verdict::before, .demo-verdict::after {
+      content: '';
+      position: absolute;
+      width: 10px; height: 10px;
+      border-color: var(--gold-dim);
+      border-style: solid;
+    }
+    .demo-verdict::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+    .demo-verdict::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+    .demo-verdict .verdict-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .demo-verdict.wrong .verdict-label { color: var(--red-rune); }
+    .demo-verdict.right .verdict-label { color: #4a8a4a; }
+
+    .demo-verdict .verdict-pred {
+      font-family: 'Cinzel', serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      margin-bottom: 0.25rem;
+    }
+
+    .demo-verdict .verdict-conf {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ── Horizontal rule ───────────────────────────────────────── */
+    .section-divider {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      color: var(--gold-dim);
+      font-size: 0.9rem;
+    }
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--panel-border), transparent);
+    }
+
+    /* ── Footer ────────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--panel-border);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+    footer p {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── Animations ────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Responsive ────────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .two-col, .accuracy-grid, .demo-callout { grid-template-columns: 1fr; }
+      nav { gap: 1.2rem; flex-wrap: wrap; font-size: 0.65rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="#overview">Overview</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#models">Models</a>
+    <a href="#results">Results</a>
+    <a href="#demo">Demo</a>
+    <a href="#notebook">Notebook</a>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <p class="hero-eyebrow">CS4210 &nbsp;·&nbsp; Spring 2026 &nbsp;·&nbsp; Kevin Hernandez</p>
+    <h1 class="hero-title">Measuring Temporal Information in Human Activity Recognition</h1>
+    <p class="hero-subtitle">Frame-Based CNN vs. CNN + LSTM</p>
+
+    <div class="divider-ornament"><span>✦</span></div>
+
+    <p class="hero-desc">
+      Does motion over time actually matter for recognizing what someone is doing,
+      or can a model look at a single photograph and figure it out?
+      This project builds two models, trains them on identical data, and directly measures the gap.
+    </p>
+
+    <div class="hero-badges">
+      <span class="badge">PyTorch</span>
+      <span class="badge">ResNet-18</span>
+      <span class="badge">LSTM</span>
+      <span class="badge">Transfer Learning</span>
+      <span class="badge">7 Activity Classes</span>
+      <span class="badge">1,113 Video Clips</span>
+    </div>
+
+    <div class="hero-cta">
+      <a href="#results" class="btn">View Results</a>
+      <a href="#notebook" class="btn btn-ghost">View Notebook</a>
+    </div>
+  </div>
+
+  <div class="section-divider">✦</div>
+
+  <!-- Overview -->
+  <section id="overview">
+    <div class="reveal">
+      <p class="section-label">The Question</p>
+      <h2 class="section-title">Project Overview</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="two-col reveal">
+      <div>
+        <p style="margin-bottom:1.25rem;">
+          Human activity recognition from video is a core computer vision challenge with applications
+          in surveillance, assistive technology, and human-computer interaction. A fundamental open
+          question is how much temporal context — motion over time — contributes to classification
+          accuracy compared to static appearance alone.
+        </p>
+        <p style="margin-bottom:1.25rem;">
+          This project answers that directly by training and comparing two architectures on the same
+          7-class video dataset. The <strong style="color:var(--gold-light)">Frame CNN</strong> sees
+          a single still frame. The <strong style="color:var(--gold-light)">CNN + LSTM</strong> sees
+          a sequence of 16 frames in order. Everything else — backbone, data, training settings,
+          evaluation — is held constant.
+        </p>
+        <p>
+          Activities like <em>Sitting</em> and <em>Standing Still</em> are expected to be
+          identifiable from appearance alone. Activities like <em>Walking While Using Phone</em>
+          should require motion context to distinguish from plain walking.
+        </p>
+      </div>
+
+      <div>
+        <div class="img-frame">
+          <img src="sample_frames.png" alt="Sample training frames" />
+        </div>
+        <p class="img-caption">Sample frames from the training set</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">✦</div>
+
+  <!-- Pipeline -->
+  <section id="pipeline">
+    <div class="reveal">
+      <p class="section-label">System Design</p>
+      <h2 class="section-title">Pipeline</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="pipeline reveal">
+      <div class="pipeline-step">
+        <div class="step-num">01</div>
+        <div>
+          <p class="step-title">Data Acquisition</p>
+          <p class="step-body">
+            1,113 video clips downloaded from Kaggle directly into Colab's local storage
+            using <code style="color:var(--gold-dim)">kagglehub</code> authenticated via API token.
+            Raw videos never touch Google Drive — the dataset is ~15GB and Drive's free tier is 15GB.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-num">02</div>
+        <div>
+          <p class="step-title">Frame Extraction</p>
+          <p class="step-body">
+            OpenCV opens each video and samples 16 frames at uniformly spaced positions across
+            the full duration. Each frame is resized to 224×224 and saved as a JPEG to Google Drive.
+            This runs once and is skipped on subsequent sessions — bringing 15GB of video down to
+            a few hundred megabytes of images.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-num">03</div>
+        <div>
+          <p class="step-title">Stratified Split</p>
+          <p class="step-body">
+            Clips split into train (779), validation (167), and test (167) using
+            sklearn's <code style="color:var(--gold-dim)">train_test_split</code> with stratification —
+            all 7 classes are proportionally represented in every subset.
+            Split is done at the clip level so no frames from the same video appear in two splits.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-num">04</div>
+        <div>
+          <p class="step-title">Dataset Classes</p>
+          <p class="step-body">
+            <code style="color:var(--gold-dim)">FrameDataset</code> returns one frame per clip
+            (random during training, middle frame during eval).
+            <code style="color:var(--gold-dim)">SequenceDataset</code> returns all 16 frames
+            stacked as a tensor of shape <code style="color:var(--gold-dim)">(16, 3, 224, 224)</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="pipeline-step">
+        <div class="step-num">05</div>
+        <div>
+          <p class="step-title">Training</p>
+          <p class="step-body">
+            Both models trained for 20 epochs with Adam (lr=1e-4), CrossEntropyLoss,
+            and cosine annealing scheduler. Best validation checkpoint saved to Drive separately
+            per model. ImageNet normalization and augmentation (random flip, color jitter) applied.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">✦</div>
+
+  <!-- Models -->
+  <section id="models">
+    <div class="reveal">
+      <p class="section-label">Architecture</p>
+      <h2 class="section-title">The Two Models</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="two-col reveal">
+      <div class="panel">
+        <p style="font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:0.5rem;">Baseline</p>
+        <h3 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold-light);margin-bottom:1rem;">Frame CNN</h3>
+        <p style="margin-bottom:1rem;">
+          Pre-trained ResNet-18 with all backbone layers frozen. The final fully connected layer
+          is replaced — the original outputs 1,000 ImageNet scores, swapped for
+          <code style="color:var(--gold-dim)">Linear(512, 7)</code> for our 7 activity classes.
+        </p>
+        <p style="margin-bottom:1rem;">
+          Only <strong style="color:var(--gold-light)">3,591</strong> trainable parameters out of
+          11.1M total. Single frame input <code style="color:var(--gold-dim)">(3, 224, 224)</code>.
+        </p>
+        <p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;">
+          No information about motion — classifies from appearance alone.
+        </p>
+      </div>
+
+      <div class="panel">
+        <p style="font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:0.5rem;">Temporal</p>
+        <h3 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold-light);margin-bottom:1rem;">CNN + LSTM</h3>
+        <p style="margin-bottom:1rem;">
+          Same ResNet-18 backbone with the classifier stripped — used as a pure feature extractor
+          outputting a 512-dim vector per frame. All 16 frames pass through the CNN simultaneously
+          via batch reshape. An LSTM (hidden=256) reads the sequence; its final hidden state
+          feeds into <code style="color:var(--gold-dim)">Linear(256, 7)</code>.
+        </p>
+        <p style="margin-bottom:1rem;">
+          <strong style="color:var(--gold-light)">790,279</strong> trainable parameters.
+          Full sequence input <code style="color:var(--gold-dim)">(16, 3, 224, 224)</code>.
+        </p>
+        <p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;">
+          The LSTM's hidden state accumulates how the scene changes across all 16 frames.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">✦</div>
+
+  <!-- Results -->
+  <section id="results">
+    <div class="reveal">
+      <p class="section-label">Evaluation</p>
+      <h2 class="section-title">Results</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <!-- Accuracy callouts -->
+    <div class="accuracy-grid reveal">
+      <div class="accuracy-card baseline">
+        <p class="model-name">Frame CNN</p>
+        <p class="accuracy-num">65%</p>
+        <p class="accuracy-label">Test Accuracy</p>
+      </div>
+      <div class="accuracy-card temporal">
+        <p class="model-name">CNN + LSTM</p>
+        <p class="accuracy-num">98%</p>
+        <p class="accuracy-label">Test Accuracy</p>
+      </div>
+    </div>
+
+    <!-- F1 table -->
+    <div class="reveal">
+      <table class="f1-table">
+        <thead>
+          <tr>
+            <th>Activity Class</th>
+            <th style="text-align:center;">Frame CNN F1</th>
+            <th style="text-align:center;">CNN + LSTM F1</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Clapping</td>               <td class="score mid">0.82</td><td class="score high">1.00</td></tr>
+          <tr><td>Meet and Split</td>          <td class="score low">0.45</td><td class="score high">0.98</td></tr>
+          <tr><td>Sitting</td>                 <td class="score mid">0.76</td><td class="score high">1.00</td></tr>
+          <tr><td>Standing Still</td>          <td class="score mid">0.73</td><td class="score high">1.00</td></tr>
+          <tr><td>Walking</td>                 <td class="score low">0.50</td><td class="score high">0.92</td></tr>
+          <tr><td>Walking While Reading Book</td><td class="score mid">0.73</td><td class="score high">0.98</td></tr>
+          <tr><td>Walking While Using Phone</td><td class="score low">0.52</td><td class="score high">0.95</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Training curves -->
+    <div class="reveal" style="margin-bottom:3rem;">
+      <div class="img-frame">
+        <img src="training_curves.png" alt="Training curves" />
+      </div>
+      <p class="img-caption">Training Curves — Frame CNN vs CNN + LSTM</p>
+    </div>
+
+    <!-- Confusion matrices -->
+    <div class="two-col reveal">
+      <div>
+        <div class="img-frame">
+          <img src="confusion_frame_cnn.png" alt="Frame CNN confusion matrix" />
+        </div>
+        <p class="img-caption">Frame CNN — Confusion Matrix</p>
+      </div>
+      <div>
+        <div class="img-frame">
+          <img src="confusion_lstm.png" alt="CNN+LSTM confusion matrix" />
+        </div>
+        <p class="img-caption">CNN + LSTM — Confusion Matrix</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="section-divider">✦</div>
+
+  <!-- Demo -->
+  <section id="demo">
+    <div class="reveal">
+      <p class="section-label">Side-by-Side Inference</p>
+      <h2 class="section-title">Demo</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="reveal" style="margin-bottom:2rem;">
+      <p style="margin-bottom:1rem;">
+        The <code style="color:var(--gold-dim)">predict_video()</code> function extracts 16 uniformly
+        spaced frames from any video clip and runs both models simultaneously. Below is the result
+        on a <em>Walking While Using Phone</em> clip from the held-out test set.
+      </p>
+      <p>
+        The middle frame — the only input the Frame CNN had — shows a person mid-stride with no
+        clearly visible phone interaction. Watching all 16 frames in sequence, the LSTM tracked
+        the repeated hand-to-phone gesture and got it right at near-perfect confidence.
+      </p>
+    </div>
+
+    <div class="demo-callout reveal">
+      <div class="demo-verdict wrong">
+        <p class="verdict-label">✕ &nbsp; Frame CNN</p>
+        <p class="verdict-pred">Walking</p>
+        <p class="verdict-conf">22.0% confidence</p>
+      </div>
+      <div class="demo-verdict right">
+        <p class="verdict-label">✓ &nbsp; CNN + LSTM</p>
+        <p class="verdict-pred">Walking While Using Phone</p>
+        <p class="verdict-conf">98.3% confidence</p>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:2rem;">
+      <div class="img-frame">
+        <img src="demo_result.png" alt="Demo inference result" />
+      </div>
+      <p class="img-caption">16 extracted frames — middle frame highlighted was the only input to Frame CNN</p>
+    </div>
+  </section>
+
+  <div class="section-divider">✦</div>
+
+  <!-- Notebook -->
+  <section id="notebook">
+    <div class="reveal">
+      <p class="section-label">Source Code</p>
+      <h2 class="section-title">Notebook & Code</h2>
+      <div class="section-rule"></div>
+    </div>
+
+    <div class="panel reveal">
+      <p style="margin-bottom:1.5rem;">
+        The full implementation is available as a Jupyter notebook with all cell outputs preserved —
+        including training logs, confusion matrices, and demo output. It runs end-to-end in Google
+        Colab with a T4 GPU and requires only a Kaggle API token to reproduce.
+      </p>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+        <a href="har_csproject.ipynb" class="btn">View Notebook</a>
+        <a href="README.md" class="btn btn-ghost">README</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>Kevin Hernandez &nbsp;·&nbsp; CS4210 Deep Learning &nbsp;·&nbsp; Spring 2026</p>
+  </footer>
+
+  <!-- Scroll reveal script -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
