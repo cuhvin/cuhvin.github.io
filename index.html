@@ -33,14 +33,50 @@
       min-height: 100vh;
     }
 
+    /* noise overlay */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
       pointer-events: none;
-      z-index: 9999;
+      z-index: 9998;
       opacity: 0.35;
+    }
+
+    /* ── Ember Canvas ── */
+    #ember-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Sigil background figure ── */
+    #sigil-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(520px, 85vw);
+      height: min(520px, 85vw);
+      opacity: 0;
+      animation: sigilReveal 3s 0.5s ease forwards;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes sigilReveal {
+      0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(0.92); }
+      60%  { opacity: 0.07; }
+      100% { opacity: 0.055; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+    }
+
+    /* slow eternal rotation */
+    #sigil-bg { animation: sigilReveal 3s 0.5s ease forwards, sigilRotate 80s 3.5s linear infinite; }
+    @keyframes sigilRotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     /* ── Hero ── */
@@ -53,10 +89,12 @@
       text-align: center;
       padding: 4rem 2rem;
       position: relative;
+      overflow: hidden;
       background:
-        radial-gradient(ellipse 70% 55% at 50% 45%, rgba(201,168,76,0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 55% at 50% 45%, rgba(201,168,76,0.09) 0%, transparent 70%),
         radial-gradient(ellipse 50% 35% at 50% 85%, rgba(74,143,168,0.04) 0%, transparent 60%),
         var(--bg-dark);
+      z-index: 1;
     }
 
     .hero::before {
@@ -66,6 +104,7 @@
       width: min(600px, 85vw);
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      z-index: 1;
     }
 
     .hero::after {
@@ -75,7 +114,11 @@
       width: min(600px, 85vw);
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+      z-index: 1;
     }
+
+    /* all hero content above canvas */
+    .hero > * { position: relative; z-index: 2; }
 
     .hero-eyebrow {
       font-family: 'Cinzel', serif;
@@ -93,9 +136,14 @@
       font-weight: 900;
       line-height: 1;
       color: var(--gold-light);
-      text-shadow: 0 0 80px rgba(201,168,76,0.25), 0 2px 4px rgba(0,0,0,0.8);
-      animation: fadeUp 0.9s 0.1s ease both;
+      text-shadow: 0 0 80px rgba(201,168,76,0.3), 0 2px 4px rgba(0,0,0,0.8);
+      animation: fadeUp 0.9s 0.1s ease both, nameGlow 4s 2s ease-in-out infinite alternate;
       letter-spacing: 0.04em;
+    }
+
+    @keyframes nameGlow {
+      from { text-shadow: 0 0 80px rgba(201,168,76,0.25), 0 2px 4px rgba(0,0,0,0.8); }
+      to   { text-shadow: 0 0 120px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.2), 0 2px 4px rgba(0,0,0,0.8); }
     }
 
     .hero-role {
@@ -120,12 +168,41 @@
     .divider-ornament::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold-dim), transparent); }
     .divider-ornament span { color: var(--gold); font-size: 1rem; }
 
+    /* typing cursor */
     .hero-bio {
       max-width: 560px;
       color: var(--text-body);
       font-size: 1.05rem;
       line-height: 1.85;
       animation: fadeUp 1s 0.4s ease both;
+      min-height: 3.7rem;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: var(--gold);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: cursorBlink 1s step-end infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* ── Scroll progress bar ── */
+    #scroll-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0%;
+      background: linear-gradient(90deg, var(--gold-dim), var(--gold-light));
+      z-index: 10000;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px rgba(201,168,76,0.5);
     }
 
     /* ── Projects Section ── */
@@ -133,6 +210,8 @@
       padding: 6rem 2rem;
       max-width: 960px;
       margin: 0 auto;
+      position: relative;
+      z-index: 2;
     }
 
     .section-label {
@@ -171,11 +250,12 @@
       text-decoration: none;
       color: inherit;
       position: relative;
-      transition: border-color 0.35s, background 0.35s;
+      transition: border-color 0.35s, background 0.35s, box-shadow 0.35s;
       margin-bottom: 1.5rem;
       overflow: hidden;
     }
 
+    /* corner ornaments */
     .project-card::before, .project-card::after {
       content: '';
       position: absolute;
@@ -183,22 +263,55 @@
       border-color: var(--gold-dim);
       border-style: solid;
       transition: border-color 0.35s;
+      z-index: 2;
     }
     .project-card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
     .project-card::after  { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
+    /* static ambient sweep */
     .project-card .sweep {
       position: absolute;
       inset: 0;
       background: linear-gradient(120deg, transparent 0%, rgba(201,168,76,0.04) 100%);
       opacity: 0;
       transition: opacity 0.4s;
+      z-index: 0;
     }
 
-    .project-card:hover { border-color: var(--gold-dim); background: #201708; }
+    /* shimmer layer — slides across on hover */
+    .project-card .shimmer {
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(201,168,76,0.08) 40%,
+        rgba(232,201,122,0.15) 50%,
+        rgba(201,168,76,0.08) 60%,
+        transparent 80%
+      );
+      transform: skewX(-15deg);
+      transition: none;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .project-card:hover {
+      border-color: var(--gold-dim);
+      background: #201708;
+      box-shadow: 0 0 30px rgba(201,168,76,0.06), inset 0 0 30px rgba(201,168,76,0.02);
+    }
     .project-card:hover::before,
     .project-card:hover::after { border-color: var(--gold); }
     .project-card:hover .sweep { opacity: 1; }
+
+    /* shimmer fires on hover via JS class */
+    .project-card.shimmer-active .shimmer {
+      transition: left 0.6s ease;
+      left: 140%;
+    }
 
     .card-tag {
       font-family: 'Cinzel', serif;
@@ -207,6 +320,7 @@
       text-transform: uppercase;
       color: var(--gold-dim);
       margin-bottom: 0.5rem;
+      position: relative; z-index: 2;
     }
 
     .card-title {
@@ -216,6 +330,7 @@
       color: var(--gold-light);
       margin-bottom: 0.75rem;
       line-height: 1.25;
+      position: relative; z-index: 2;
     }
 
     .card-desc {
@@ -223,12 +338,14 @@
       color: var(--text-body);
       line-height: 1.7;
       margin-bottom: 1.25rem;
+      position: relative; z-index: 2;
     }
 
     .card-chips {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
+      position: relative; z-index: 2;
     }
 
     .chip {
@@ -246,6 +363,7 @@
       color: var(--gold-dim);
       transition: color 0.3s, transform 0.3s;
       flex-shrink: 0;
+      position: relative; z-index: 2;
     }
     .project-card:hover .card-arrow { color: var(--gold-light); transform: translateX(4px); }
 
@@ -271,6 +389,8 @@
       border-top: 1px solid var(--panel-border);
       padding: 2.5rem 2rem;
       text-align: center;
+      position: relative;
+      z-index: 2;
     }
     footer p {
       font-family: 'Cinzel', serif;
@@ -280,7 +400,7 @@
       color: var(--text-muted);
     }
 
-    /* ── Animations ── */
+    /* ── Shared Animations ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -302,18 +422,55 @@
 
 <body>
 
+  <!-- scroll progress bar -->
+  <div id="scroll-bar"></div>
+
+  <!-- ember canvas (behind everything) -->
+  <canvas id="ember-canvas"></canvas>
+
   <div class="hero">
+    <!-- animated sigil / background figure -->
+    <svg id="sigil-bg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- outer ring -->
+      <circle cx="200" cy="200" r="190" stroke="#c9a84c" stroke-width="0.8" stroke-dasharray="6 5"/>
+      <!-- inner ring -->
+      <circle cx="200" cy="200" r="155" stroke="#c9a84c" stroke-width="0.5" stroke-dasharray="3 8"/>
+      <!-- mid ring -->
+      <circle cx="200" cy="200" r="115" stroke="#c9a84c" stroke-width="0.6"/>
+      <!-- hexagram -->
+      <polygon points="200,42 347,131 347,269 200,358 53,269 53,131" stroke="#c9a84c" stroke-width="0.7" fill="none"/>
+      <!-- inner triangle up -->
+      <polygon points="200,70 330,260 70,260" stroke="#c9a84c" stroke-width="0.6" fill="none"/>
+      <!-- inner triangle down -->
+      <polygon points="200,330 70,140 330,140" stroke="#c9a84c" stroke-width="0.6" fill="none"/>
+      <!-- cross hairs -->
+      <line x1="200" y1="10"  x2="200" y2="390" stroke="#c9a84c" stroke-width="0.4" stroke-dasharray="2 10"/>
+      <line x1="10"  y1="200" x2="390" y2="200" stroke="#c9a84c" stroke-width="0.4" stroke-dasharray="2 10"/>
+      <!-- diagonal cross -->
+      <line x1="57"  y1="57"  x2="343" y2="343" stroke="#c9a84c" stroke-width="0.35" stroke-dasharray="2 12"/>
+      <line x1="343" y1="57"  x2="57"  y2="343" stroke="#c9a84c" stroke-width="0.35" stroke-dasharray="2 12"/>
+      <!-- center dot -->
+      <circle cx="200" cy="200" r="4" fill="#c9a84c" opacity="0.6"/>
+      <!-- 8 rune marks around outer ring -->
+      <g stroke="#c9a84c" stroke-width="0.8">
+        <line x1="200" y1="8"   x2="200" y2="22"/>
+        <line x1="200" y1="378" x2="200" y2="392"/>
+        <line x1="8"   y1="200" x2="22"  y2="200"/>
+        <line x1="378" y1="200" x2="392" y2="200"/>
+        <line x1="52"  y1="52"  x2="62"  y2="62"/>
+        <line x1="338" y1="52"  x2="348" y2="62"/>
+        <line x1="52"  y1="348" x2="62"  y2="338"/>
+        <line x1="338" y1="348" x2="348" y2="338"/>
+      </g>
+    </svg>
+
     <p class="hero-eyebrow">Portfolio</p>
     <h1 class="hero-name">Kevin Hernandez</h1>
     <p class="hero-role">Computer Science &nbsp;·&nbsp; Deep Learning &nbsp;·&nbsp; Computer Vision</p>
 
     <div class="divider-ornament"><span>✦</span></div>
 
-    <!-- Edit this bio -->
-    <p class="hero-bio">
-      CS student focused on machine learning and computer vision.
-      Building projects that explore how models see, understand, and reason about the world.
-    </p>
+    <p class="hero-bio" id="bio-text"></p>
   </div>
 
   <div class="projects-section">
@@ -324,8 +481,9 @@
     </div>
 
     <!-- HAR Card -->
-    <a href="har/index.html" class="project-card reveal">
+    <a href="har/index.html" class="project-card reveal" id="har-card">
       <div class="sweep"></div>
+      <div class="shimmer"></div>
       <div>
         <p class="card-tag">Deep Learning &nbsp;·&nbsp; Computer Vision &nbsp;·&nbsp; Spring 2026</p>
         <h3 class="card-title">Measuring Temporal Information in Human Activity Recognition</h3>
@@ -347,6 +505,8 @@
 
     <!-- Next project placeholder -->
     <div class="project-card coming-soon reveal">
+      <div class="sweep"></div>
+      <div class="shimmer"></div>
       <div>
         <span class="coming-soon-badge">Coming Soon</span>
         <h3 class="card-title">Next Project</h3>
@@ -361,15 +521,154 @@
   </footer>
 
   <script>
-    const observer = new IntersectionObserver((entries) => {
+    // ── 1. Scroll progress bar ───────────────────────────────────
+    const scrollBar = document.getElementById('scroll-bar');
+    window.addEventListener('scroll', () => {
+      const scrolled = window.scrollY;
+      const total    = document.documentElement.scrollHeight - window.innerHeight;
+      scrollBar.style.width = (scrolled / total * 100) + '%';
+    }, { passive: true });
+
+    // ── 2. Scroll reveal ─────────────────────────────────────────
+    const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
           e.target.classList.add('visible');
-          observer.unobserve(e.target);
+          revealObserver.unobserve(e.target);
         }
       });
     }, { threshold: 0.1 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── 3. Typing effect ─────────────────────────────────────────
+    const bioEl   = document.getElementById('bio-text');
+    const bioText = 'CS student focused on machine learning and computer vision. Building projects that explore how models see, understand, and reason about the world.';
+    let   charIdx = 0;
+
+    // cursor element
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    bioEl.appendChild(cursor);
+
+    // start typing after hero animations settle
+    function typeChar() {
+      if (charIdx < bioText.length) {
+        cursor.insertAdjacentText('beforebegin', bioText[charIdx]);
+        charIdx++;
+        // vary speed slightly for organic feel
+        const delay = bioText[charIdx - 1] === '.' ? 420
+                    : bioText[charIdx - 1] === ',' ? 200
+                    : 28 + Math.random() * 18;
+        setTimeout(typeChar, delay);
+      } else {
+        // hide cursor after typing finishes (after a beat)
+        setTimeout(() => cursor.style.animation = 'none', 2000);
+        setTimeout(() => cursor.style.opacity   = '0',    2100);
+      }
+    }
+
+    // delay start until after hero fadeUp animations
+    setTimeout(typeChar, 1400);
+
+    // ── 4. Card shimmer on hover ──────────────────────────────────
+    document.querySelectorAll('.project-card:not(.coming-soon)').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.classList.remove('shimmer-active');
+        // force reflow so transition re-fires every hover
+        void card.offsetWidth;
+        card.classList.add('shimmer-active');
+      });
+      card.addEventListener('mouseleave', () => {
+        card.classList.remove('shimmer-active');
+      });
+    });
+
+    // ── 5. Ember particles ────────────────────────────────────────
+    const canvas = document.getElementById('ember-canvas');
+    const ctx    = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas, { passive: true });
+
+    // ember config
+    const EMBER_COUNT = 55;
+    const embers = [];
+
+    function randomBetween(a, b) { return a + Math.random() * (b - a); }
+
+    function createEmber(forceBottom = false) {
+      const x = randomBetween(0, canvas.width);
+      const y = forceBottom
+        ? randomBetween(canvas.height * 0.6, canvas.height)
+        : randomBetween(0, canvas.height);
+
+      return {
+        x,
+        y,
+        vx:      randomBetween(-0.3, 0.3),    // slight horizontal drift
+        vy:      randomBetween(-0.5, -1.4),    // upward
+        radius:  randomBetween(0.8, 2.4),
+        life:    0,
+        maxLife: randomBetween(120, 300),       // frames alive
+        // gold/orange palette
+        hue:     randomBetween(28, 48),
+        sat:     randomBetween(70, 100),
+        bright:  randomBetween(55, 85),
+        flicker: randomBetween(0.02, 0.06),    // opacity flicker speed
+        flickerOffset: Math.random() * Math.PI * 2,
+      };
+    }
+
+    // seed initial embers spread across screen
+    for (let i = 0; i < EMBER_COUNT; i++) embers.push(createEmber(false));
+
+    function drawEmbers(timestamp) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      embers.forEach((e, i) => {
+        e.life++;
+        e.x += e.vx + Math.sin(e.life * 0.02) * 0.2;  // gentle sway
+        e.y += e.vy;
+
+        // life progress 0→1
+        const progress = e.life / e.maxLife;
+
+        // fade in and out
+        const fadeIn  = Math.min(progress * 6, 1);
+        const fadeOut = 1 - Math.max((progress - 0.7) / 0.3, 0);
+        const flicker = 0.7 + 0.3 * Math.sin(e.life * e.flicker + e.flickerOffset);
+        const alpha   = fadeIn * fadeOut * flicker * 0.85;
+
+        // glow
+        const grd = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, e.radius * 3);
+        grd.addColorStop(0, `hsla(${e.hue}, ${e.sat}%, ${e.bright}%, ${alpha})`);
+        grd.addColorStop(1, `hsla(${e.hue}, ${e.sat}%, ${e.bright}%, 0)`);
+
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = grd;
+        ctx.fill();
+
+        // solid core
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius * 0.6, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${e.hue + 10}, 100%, 90%, ${alpha * 0.9})`;
+        ctx.fill();
+
+        // respawn when dead or off screen
+        if (e.life >= e.maxLife || e.y < -20) {
+          embers[i] = createEmber(true);
+        }
+      });
+
+      requestAnimationFrame(drawEmbers);
+    }
+
+    requestAnimationFrame(drawEmbers);
   </script>
 
 </body>
