@@ -13,7 +13,7 @@
       --gold:        #c9a84c;
       --gold-light:  #e8c97a;
       --gold-dim:    #7a5f2a;
-      --bg-dark:     #0d0b08;
+      --bg-dark:     #07080f;
       --bg-panel:    #1c1509;
       --panel-border:#3a2e10;
       --text-body:   #d4c9a8;
@@ -42,6 +42,53 @@
       pointer-events: none;
       z-index: 9998;
       opacity: 0.35;
+    }
+
+    /* ── Starfield Canvas ── */
+    #star-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Fog layer at hero bottom ── */
+    .hero-fog {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 38%;
+      pointer-events: none;
+      z-index: 1;
+      background: linear-gradient(
+        to top,
+        rgba(12, 14, 28, 0.82) 0%,
+        rgba(12, 14, 28, 0.45) 35%,
+        rgba(12, 14, 28, 0.12) 65%,
+        transparent 100%
+      );
+      animation: fogDrift 18s ease-in-out infinite alternate;
+    }
+
+    .hero-fog::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+        ellipse 80% 60% at 30% 80%,
+        rgba(30, 40, 80, 0.35) 0%,
+        transparent 70%
+      );
+      animation: fogDrift2 24s ease-in-out infinite alternate;
+    }
+
+    @keyframes fogDrift {
+      from { transform: translateX(-1.5%); opacity: 0.85; }
+      to   { transform: translateX(1.5%);  opacity: 1; }
+    }
+
+    @keyframes fogDrift2 {
+      from { transform: translateX(2%); }
+      to   { transform: translateX(-2%); }
     }
 
     /* ── Ember Canvas ── */
@@ -384,22 +431,6 @@
       margin-bottom: 0.75rem;
     }
 
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--panel-border);
-      padding: 2.5rem 2rem;
-      text-align: center;
-      position: relative;
-      z-index: 2;
-    }
-    footer p {
-      font-family: 'Cinzel', serif;
-      font-size: 0.68rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
-
     /* ── Shared Animations ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(18px); }
@@ -417,6 +448,116 @@
       .project-card { grid-template-columns: 1fr; }
       .card-arrow { display: none; }
     }
+    /* ── Wyvern ── */
+    .wyvern-wrap {
+      position: absolute;
+      right: clamp(20px, 8vw, 140px);
+      bottom: clamp(60px, 12vh, 140px);
+      width: clamp(120px, 16vw, 220px);
+      opacity: 0;
+      animation: wyvernAppear 2s 2s ease forwards;
+      pointer-events: none;
+      z-index: 2;
+      filter:
+        invert(1)
+        sepia(1)
+        saturate(2)
+        hue-rotate(5deg)
+        brightness(0.88)
+        drop-shadow(0 0 18px rgba(201,168,76,0.45));
+      mix-blend-mode: screen;
+    }
+
+    @keyframes wyvernAppear {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 0.72; transform: translateY(0); }
+    }
+
+    /* gentle hover float */
+    .wyvern-wrap img {
+      width: 100%;
+      animation: wyvernFloat 7s 4s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    @keyframes wyvernFloat {
+      0%,100% { transform: translateY(0)    rotate(-1deg); }
+      35%     { transform: translateY(-10px) rotate(1.5deg); }
+      65%     { transform: translateY(-5px)  rotate(-0.5deg); }
+    }
+
+    /* ── Cityscape canvas ── */
+    #city-canvas {
+      display: block;
+      width: 100%;
+      height: 180px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .city-wrap {
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      background: transparent;
+      margin-bottom: -2px;
+    }
+
+    /* ── Section transition (kept for gradient fade) ── */
+    .section-transition {
+      height: 80px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(7,8,15,0.55) 50%,
+        rgba(7,8,15,0.82) 100%
+      );
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── Wax seal footer ── */
+    .footer-seal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 2.5rem 2rem;
+      position: relative;
+      z-index: 2;
+      background: rgba(7,8,15,0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-top: 1px solid var(--panel-border);
+    }
+
+    .footer-seal img {
+      width: 64px;
+      opacity: 0.6;
+      filter:
+        invert(1)
+        sepia(1)
+        saturate(2)
+        hue-rotate(5deg)
+        brightness(0.85)
+        drop-shadow(0 0 8px rgba(201,168,76,0.4));
+      mix-blend-mode: screen;
+      animation: sealPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes sealPulse {
+      0%,100% { opacity: 0.55; filter: invert(1) sepia(1) saturate(2) hue-rotate(5deg) brightness(0.85) drop-shadow(0 0 8px rgba(201,168,76,0.3)); }
+      50%     { opacity: 0.75; filter: invert(1) sepia(1) saturate(2) hue-rotate(5deg) brightness(1.0)  drop-shadow(0 0 16px rgba(201,168,76,0.6)); }
+    }
+
+    .footer-seal p {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
   </style>
 </head>
 
@@ -425,10 +566,20 @@
   <!-- scroll progress bar -->
   <div id="scroll-bar"></div>
 
+  <!-- starfield canvas (deepest layer) -->
+  <canvas id="star-canvas"></canvas>
+
   <!-- ember canvas (behind everything) -->
   <canvas id="ember-canvas"></canvas>
 
   <div class="hero">
+    <!-- fog layer at hero base -->
+    <div class="hero-fog"></div>
+
+    <!-- wyvern silhouette -->
+    <div class="wyvern-wrap">
+      <img src="wyvern.svg" alt="Wyvern" />
+    </div>
     <!-- animated sigil / background figure -->
     <svg id="sigil-bg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="none">
       <!-- outer ring -->
@@ -471,6 +622,13 @@
     <div class="divider-ornament"><span>✦</span></div>
 
     <p class="hero-bio" id="bio-text"></p>
+  </div>
+
+  <div class="section-transition"></div>
+
+  <!-- CSS cityscape -->
+  <div class="city-wrap">
+    <canvas id="city-canvas"></canvas>
   </div>
 
   <div class="projects-section">
@@ -516,7 +674,8 @@
 
   </div>
 
-  <footer>
+  <footer class="footer-seal">
+    <img src="wax-seal.svg" alt="Seal" />
     <p>Kevin Hernandez &nbsp;·&nbsp; cuhvin.github.io</p>
   </footer>
 
@@ -583,10 +742,144 @@
       });
     });
 
-    // ── 5. Ember particles ────────────────────────────────────────
+    // ── 5. Starfield ──────────────────────────────────────────────
+    const starCanvas = document.getElementById('star-canvas');
+    const sCtx       = starCanvas.getContext('2d');
+
+    function resizeStarCanvas() {
+      starCanvas.width  = window.innerWidth;
+      starCanvas.height = window.innerHeight;
+    }
+    resizeStarCanvas();
+    window.addEventListener('resize', resizeStarCanvas, { passive: true });
+
+    // star types: tiny static, mid drifting, large pulsing
+    const STAR_COUNT = 280;
+    const stars = [];
+
+    function createStar(randomY = true) {
+      const tier = Math.random();
+      return {
+        x:       Math.random() * starCanvas.width,
+        y:       randomY ? Math.random() * starCanvas.height
+                         : Math.random() * starCanvas.height * 0.7,
+        // tier 0-0.65: tiny/dim  |  0.65-0.9: mid  |  0.9-1: large/bright
+        radius:  tier < 0.65 ? Math.random() * 0.6 + 0.2
+               : tier < 0.90 ? Math.random() * 0.9 + 0.6
+               :                Math.random() * 1.3 + 1.0,
+        baseAlpha: tier < 0.65 ? Math.random() * 0.4 + 0.15
+                 : tier < 0.90 ? Math.random() * 0.4 + 0.35
+                 :                Math.random() * 0.3 + 0.6,
+        // slight blue-white tint variance
+        hue:     Math.random() < 0.3 ? 210 + Math.random() * 40   // blue-white
+               : Math.random() < 0.5 ? 45  + Math.random() * 20   // warm gold
+               :                       0,                           // pure white
+        sat:     Math.random() < 0.4 ? Math.random() * 40 + 10 : 0,
+        // drift (only mid+ stars drift noticeably)
+        vx:      tier > 0.65 ? (Math.random() - 0.5) * 0.012 : 0,
+        vy:      tier > 0.65 ? (Math.random() - 0.5) * 0.006 : 0,
+        // pulse
+        pulse:   tier > 0.85,
+        pulseSpeed:  Math.random() * 0.015 + 0.008,
+        pulseOffset: Math.random() * Math.PI * 2,
+        tier,
+      };
+    }
+
+    for (let i = 0; i < STAR_COUNT; i++) stars.push(createStar(true));
+
+    let starFrame = 0;
+
+    function drawStars() {
+      sCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+
+      // deep space gradient background
+      const bgGrd = sCtx.createLinearGradient(0, 0, 0, starCanvas.height);
+      bgGrd.addColorStop(0,    '#07080f');
+      bgGrd.addColorStop(0.4,  '#080a14');
+      bgGrd.addColorStop(0.75, '#0a0b10');
+      bgGrd.addColorStop(1,    '#06060a');
+      sCtx.fillStyle = bgGrd;
+      sCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+
+      // subtle nebula blobs
+      const neb1 = sCtx.createRadialGradient(
+        starCanvas.width * 0.75, starCanvas.height * 0.2, 0,
+        starCanvas.width * 0.75, starCanvas.height * 0.2, starCanvas.width * 0.35
+      );
+      neb1.addColorStop(0,   'rgba(30, 40, 100, 0.07)');
+      neb1.addColorStop(0.5, 'rgba(20, 25, 70,  0.04)');
+      neb1.addColorStop(1,   'transparent');
+      sCtx.fillStyle = neb1;
+      sCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+
+      const neb2 = sCtx.createRadialGradient(
+        starCanvas.width * 0.2, starCanvas.height * 0.6, 0,
+        starCanvas.width * 0.2, starCanvas.height * 0.6, starCanvas.width * 0.28
+      );
+      neb2.addColorStop(0,   'rgba(80, 40, 20, 0.05)');
+      neb2.addColorStop(1,   'transparent');
+      sCtx.fillStyle = neb2;
+      sCtx.fillRect(0, 0, starCanvas.width, starCanvas.height);
+
+      starFrame++;
+
+      stars.forEach(s => {
+        // drift
+        s.x += s.vx;
+        s.y += s.vy;
+        // wrap around edges
+        if (s.x < 0) s.x = starCanvas.width;
+        if (s.x > starCanvas.width)  s.x = 0;
+        if (s.y < 0) s.y = starCanvas.height;
+        if (s.y > starCanvas.height) s.y = 0;
+
+        // pulse alpha
+        let alpha = s.baseAlpha;
+        if (s.pulse) {
+          alpha += 0.25 * Math.sin(starFrame * s.pulseSpeed + s.pulseOffset);
+          alpha = Math.max(0.05, Math.min(1, alpha));
+        }
+
+        // glow for larger stars
+        if (s.tier > 0.85) {
+          const grd = sCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.radius * 4);
+          const col = s.hue === 0 ? `255,255,255` : `${s.hue === 210 ? '160,180,255' : '220,185,120'}`;
+          grd.addColorStop(0, `rgba(${col}, ${alpha * 0.6})`);
+          grd.addColorStop(1, `rgba(${col}, 0)`);
+          sCtx.beginPath();
+          sCtx.arc(s.x, s.y, s.radius * 4, 0, Math.PI * 2);
+          sCtx.fillStyle = grd;
+          sCtx.fill();
+        }
+
+        // star core
+        const lightness = s.hue === 0 ? '98%' : s.hue > 100 ? '85%' : '78%';
+        sCtx.beginPath();
+        sCtx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        sCtx.fillStyle = `hsla(${s.hue}, ${s.sat}%, ${lightness}, ${alpha})`;
+        sCtx.fill();
+
+        // cross flare for brightest stars
+        if (s.tier > 0.92 && alpha > 0.5) {
+          sCtx.strokeStyle = `hsla(${s.hue}, ${s.sat}%, 95%, ${alpha * 0.3})`;
+          sCtx.lineWidth = 0.5;
+          const fl = s.radius * 5;
+          sCtx.beginPath();
+          sCtx.moveTo(s.x - fl, s.y); sCtx.lineTo(s.x + fl, s.y);
+          sCtx.moveTo(s.x, s.y - fl); sCtx.lineTo(s.x, s.y + fl);
+          sCtx.stroke();
+        }
+      });
+
+      requestAnimationFrame(drawStars);
+    }
+
+    requestAnimationFrame(drawStars);
+
+    // ── 6. Ember particles ────────────────────────────────────────
     const canvas = document.getElementById('ember-canvas');
     const ctx    = canvas.getContext('2d');
-
     function resizeCanvas() {
       canvas.width  = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -669,6 +962,119 @@
     }
 
     requestAnimationFrame(drawEmbers);
+
+    // ── 7. CSS Cityscape ─────────────────────────────────────────
+    const cityCanvas = document.getElementById('city-canvas');
+    const cCtx       = cityCanvas.getContext('2d');
+
+    function drawCityscape() {
+      const W = cityCanvas.parentElement.offsetWidth;
+      const H = 180;
+      cityCanvas.width  = W;
+      cityCanvas.height = H;
+
+      cCtx.clearRect(0, 0, W, H);
+
+      // sky gradient — blends from transparent top into dark base
+      const sky = cCtx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0,    'rgba(7,8,15,0)');
+      sky.addColorStop(0.35, 'rgba(10,12,25,0.6)');
+      sky.addColorStop(1,    'rgba(7,8,15,0.95)');
+      cCtx.fillStyle = sky;
+      cCtx.fillRect(0, 0, W, H);
+
+      // subtle horizon glow
+      const hgrd = cCtx.createRadialGradient(W/2, H, 0, W/2, H, W * 0.55);
+      hgrd.addColorStop(0,   'rgba(201,168,76,0.07)');
+      hgrd.addColorStop(0.4, 'rgba(100,80,30,0.03)');
+      hgrd.addColorStop(1,   'transparent');
+      cCtx.fillStyle = hgrd;
+      cCtx.fillRect(0, 0, W, H);
+
+      // building generator — seeded so layout is stable on resize
+      const seed  = 42;
+      const rand  = (s, min, max) => {
+        const x = Math.sin(s) * 43758.5453;
+        return min + (x - Math.floor(x)) * (max - min);
+      };
+
+      // back layer — distant low buildings, very dark
+      cCtx.fillStyle = 'rgba(14,16,30,0.85)';
+      let x = 0, s = seed;
+      while (x < W) {
+        const w = rand(s++, 28, 70);
+        const h = rand(s++, 18, 55);
+        cCtx.fillRect(x, H - h, w - 1, h);
+        x += w;
+      }
+
+      // mid layer — medium buildings with faint gold edge glow
+      x = 0; s = seed + 100;
+      while (x < W) {
+        const w  = rand(s++, 20, 55);
+        const bh = rand(s++, 30, 95);
+        const bx = x;
+        const by = H - bh;
+
+        // building body
+        cCtx.fillStyle = `rgba(18,14,8,0.9)`;
+        cCtx.fillRect(bx, by, w - 2, bh);
+
+        // faint gold top edge glow
+        const topGlow = cCtx.createLinearGradient(bx, by, bx, by + 6);
+        topGlow.addColorStop(0, 'rgba(201,168,76,0.18)');
+        topGlow.addColorStop(1, 'transparent');
+        cCtx.fillStyle = topGlow;
+        cCtx.fillRect(bx, by, w - 2, 6);
+
+        // occasional lit window
+        if (rand(s++, 0, 1) > 0.55) {
+          const wx = bx + rand(s++, 3, w - 10);
+          const wy = by + rand(s++, 4, bh - 8);
+          const ww = rand(s++, 3, 7);
+          const wh = rand(s++, 4, 9);
+          const warmth = rand(s++, 0, 1) > 0.4;
+          cCtx.fillStyle = warmth
+            ? `rgba(201,160,80,${rand(s++, 0.25, 0.6)})`
+            : `rgba(140,160,200,${rand(s++, 0.15, 0.35)})`;
+          cCtx.fillRect(wx, wy, ww, wh);
+        }
+
+        x += w;
+      }
+
+      // front layer — tall dark silhouettes, near-black
+      x = -20; s = seed + 200;
+      while (x < W + 20) {
+        const w  = rand(s++, 15, 42);
+        const bh = rand(s++, 50, 130);
+        cCtx.fillStyle = 'rgba(8,8,12,0.97)';
+        cCtx.fillRect(x, H - bh, w - 1, bh);
+
+        // spire on some buildings
+        if (rand(s++, 0, 1) > 0.72) {
+          cCtx.beginPath();
+          cCtx.moveTo(x + w/2, H - bh - rand(s++, 10, 28));
+          cCtx.lineTo(x + 2,   H - bh);
+          cCtx.lineTo(x + w - 2, H - bh);
+          cCtx.closePath();
+          cCtx.fill();
+        }
+
+        x += w + rand(s++, 0, 8);
+      }
+
+      // ground line
+      const ground = cCtx.createLinearGradient(0, H - 3, 0, H);
+      ground.addColorStop(0, 'rgba(201,168,76,0.12)');
+      ground.addColorStop(1, 'rgba(201,168,76,0)');
+      cCtx.fillStyle = ground;
+      cCtx.fillRect(0, H - 3, W, 3);
+    }
+
+    drawCityscape();
+    window.addEventListener('resize', drawCityscape, { passive: true });
+
   </script>
 
 </body>
