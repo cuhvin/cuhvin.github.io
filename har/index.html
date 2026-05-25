@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HAR Project — Kevin Hernandez</title>
+  <title>HAR Project — Kevin D. Hernandez</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
@@ -582,7 +582,7 @@
 
   <!-- Hero -->
   <div class="hero">
-    <p class="hero-eyebrow">CS4210 &nbsp;·&nbsp; Spring 2026 &nbsp;·&nbsp; Kevin Hernandez</p>
+    <p class="hero-eyebrow">CS Project &nbsp;·&nbsp; Spring 2026 &nbsp;·&nbsp; Kevin D. Hernandez</p>
     <h1 class="hero-title">Measuring Temporal Information in Human Activity Recognition</h1>
     <p class="hero-subtitle">Frame-Based CNN vs. CNN + LSTM</p>
 
@@ -590,8 +590,8 @@
 
     <p class="hero-desc">
       Does motion over time actually matter for recognizing what someone is doing,
-      or can a model look at a single photograph and figure it out?
-      This project builds two models, trains them on identical data, and directly measures the gap.
+      or can a model look at a single photograph/frame and figure it out?
+      This project builds two models, trains them on identical data, and attempts to directly measure the gap.
     </p>
 
     <div class="hero-badges">
@@ -624,15 +624,15 @@
         <p style="margin-bottom:1.25rem;">
           Human activity recognition from video is a core computer vision challenge with applications
           in surveillance, assistive technology, and human-computer interaction. A fundamental open
-          question is how much temporal context — motion over time — contributes to classification
-          accuracy compared to static appearance alone.
+          question is how much temporal context (motion over time) contributes to classification
+          accuracy compared to static appearance (still shot) alone.
         </p>
         <p style="margin-bottom:1.25rem;">
           This project answers that directly by training and comparing two architectures on the same
           7-class video dataset. The <strong style="color:var(--gold-light)">Frame CNN</strong> sees
           a single still frame. The <strong style="color:var(--gold-light)">CNN + LSTM</strong> sees
-          a sequence of 16 frames in order. Everything else — backbone, data, training settings,
-          evaluation — is held constant.
+          a sequence of 16 frames in order. Everything else such as the backbone, data, training settings,
+          and evaluation is unchanged.
         </p>
         <p>
           Activities like <em>Sitting</em> and <em>Standing Still</em> are expected to be
@@ -668,7 +668,7 @@
           <p class="step-body">
             1,113 video clips downloaded from Kaggle directly into Colab's local storage
             using <code style="color:var(--gold-dim)">kagglehub</code> authenticated via API token.
-            Raw videos never touch Google Drive — the dataset is ~15GB and Drive's free tier is 15GB.
+            Raw videos never touch Google Drive as the dataset is ~15GB and Drive's free tier storage limit is 15GB.
           </p>
         </div>
       </div>
@@ -680,8 +680,8 @@
           <p class="step-body">
             OpenCV opens each video and samples 16 frames at uniformly spaced positions across
             the full duration. Each frame is resized to 224×224 and saved as a JPEG to Google Drive.
-            This runs once and is skipped on subsequent sessions — bringing 15GB of video down to
-            a few hundred megabytes of images.
+            This runs once and is skipped on subsequent sessions, bringing 15GB of video down to
+            a few hundred MB of images.
           </p>
         </div>
       </div>
@@ -692,7 +692,7 @@
           <p class="step-title">Stratified Split</p>
           <p class="step-body">
             Clips split into train (779), validation (167), and test (167) using
-            sklearn's <code style="color:var(--gold-dim)">train_test_split</code> with stratification —
+            sklearn's <code style="color:var(--gold-dim)">train_test_split</code> with stratification and
             all 7 classes are proportionally represented in every subset.
             Split is done at the clip level so no frames from the same video appear in two splits.
           </p>
@@ -719,7 +719,7 @@
           <p class="step-body">
             Both models trained for 20 epochs with Adam (lr=1e-4), CrossEntropyLoss,
             and cosine annealing scheduler. Best validation checkpoint saved to Drive separately
-            per model. ImageNet normalization and augmentation (random flip, color jitter) applied.
+            per model. ImageNet normalization and augmentation (random flip, color jitter) is applied.
           </p>
         </div>
       </div>
@@ -742,7 +742,7 @@
         <h3 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold-light);margin-bottom:1rem;">Frame CNN</h3>
         <p style="margin-bottom:1rem;">
           Pre-trained ResNet-18 with all backbone layers frozen. The final fully connected layer
-          is replaced — the original outputs 1,000 ImageNet scores, swapped for
+          is replaced as the original outputs 1,000 ImageNet scores, thus was swapped for
           <code style="color:var(--gold-dim)">Linear(512, 7)</code> for our 7 activity classes.
         </p>
         <p style="margin-bottom:1rem;">
@@ -750,7 +750,7 @@
           11.1M total. Single frame input <code style="color:var(--gold-dim)">(3, 224, 224)</code>.
         </p>
         <p style="color:var(--text-muted);font-size:0.9rem;font-style:italic;">
-          No information about motion — classifies from appearance alone.
+          No information about motion (classifies from appearance alone).
         </p>
       </div>
 
@@ -758,7 +758,7 @@
         <p style="font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:0.5rem;">Temporal</p>
         <h3 style="font-family:'Cinzel',serif;font-size:1.3rem;color:var(--gold-light);margin-bottom:1rem;">CNN + LSTM</h3>
         <p style="margin-bottom:1rem;">
-          Same ResNet-18 backbone with the classifier stripped — used as a pure feature extractor
+          Same ResNet-18 backbone with the classifier stripped (used as a pure feature extractor)
           outputting a 512-dim vector per frame. All 16 frames pass through the CNN simultaneously
           via batch reshape. An LSTM (hidden=256) reads the sequence; its final hidden state
           feeds into <code style="color:var(--gold-dim)">Linear(256, 7)</code>.
@@ -825,7 +825,7 @@
       <div class="img-frame">
         <img src="training_curves.png" alt="Training curves" />
       </div>
-      <p class="img-caption">Training Curves — Frame CNN vs CNN + LSTM</p>
+      <p class="img-caption">Training Curves: Frame CNN vs CNN + LSTM</p>
     </div>
 
     <!-- Confusion matrices -->
@@ -834,13 +834,13 @@
         <div class="img-frame">
           <img src="confusion_frame_cnn.png" alt="Frame CNN confusion matrix" />
         </div>
-        <p class="img-caption">Frame CNN — Confusion Matrix</p>
+        <p class="img-caption">Frame CNN: Confusion Matrix</p>
       </div>
       <div>
         <div class="img-frame">
           <img src="confusion_lstm.png" alt="CNN+LSTM confusion matrix" />
         </div>
-        <p class="img-caption">CNN + LSTM — Confusion Matrix</p>
+        <p class="img-caption">CNN + LSTM: Confusion Matrix</p>
       </div>
     </div>
   </section>
@@ -862,7 +862,7 @@
         on a <em>Walking While Using Phone</em> clip from the held-out test set.
       </p>
       <p>
-        The middle frame — the only input the Frame CNN had — shows a person mid-stride with no
+        The middle frame (the only input the Frame CNN had) shows a person mid-stride with no
         clearly visible phone interaction. Watching all 16 frames in sequence, the LSTM tracked
         the repeated hand-to-phone gesture and got it right at near-perfect confidence.
       </p>
@@ -885,7 +885,7 @@
       <div class="img-frame">
         <img src="demo_result.png" alt="Demo inference result" />
       </div>
-      <p class="img-caption">16 extracted frames — middle frame highlighted was the only input to Frame CNN</p>
+      <p class="img-caption">16 extracted frames, middle frame highlighted was the only input to Frame CNN</p>
     </div>
   </section>
 
@@ -901,7 +901,7 @@
 
     <div class="panel reveal">
       <p style="margin-bottom:1.5rem;">
-        The full implementation is available as a Jupyter notebook with all cell outputs preserved —
+        The full implementation is available as a notebook with all cell outputs preserved,
         including training logs, confusion matrices, and demo output. It runs end-to-end in Google
         Colab with a T4 GPU and requires only a Kaggle API token to reproduce.
       </p>
@@ -913,7 +913,7 @@
 
   <!-- Footer -->
   <footer>
-    <p>Kevin Hernandez &nbsp;·&nbsp; CS4210 Deep Learning &nbsp;·&nbsp; Spring 2026</p>
+    <p>Kevin D. Hernandez &nbsp;·&nbsp; Cool ML Project &nbsp;·&nbsp; Spring 2026</p>
   </footer>
 
   <!-- Scroll reveal script -->
