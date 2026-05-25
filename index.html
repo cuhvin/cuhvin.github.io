@@ -115,15 +115,19 @@
 
     @keyframes sigilReveal {
       0%   { opacity: 0; transform: translate(-50%, -50%) rotate(-8deg) scale(0.92); }
-      60%  { opacity: 0.07; }
-      100% { opacity: 0.055; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
+      60%  { opacity: 0.18; }
+      100% { opacity: 0.13; transform: translate(-50%, -50%) rotate(0deg) scale(1); }
     }
 
     /* slow eternal rotation */
-    #sigil-bg { animation: sigilReveal 3s 0.5s ease forwards, sigilRotate 80s 3.5s linear infinite; }
+    #sigil-bg { animation: sigilReveal 3s 0.5s ease forwards, sigilRotate 80s 3.5s linear infinite, sigilPulse 6s 4s ease-in-out infinite; }
     @keyframes sigilRotate {
       from { transform: translate(-50%, -50%) rotate(0deg); }
       to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    @keyframes sigilPulse {
+      0%, 100% { opacity: 0.13; }
+      50%      { opacity: 0.22; }
     }
 
     /* ── Hero ── */
@@ -184,13 +188,48 @@
       line-height: 1;
       color: var(--gold-light);
       text-shadow: 0 0 80px rgba(201,168,76,0.3), 0 2px 4px rgba(0,0,0,0.8);
-      animation: fadeUp 0.9s 0.1s ease both, nameGlow 4s 2s ease-in-out infinite alternate;
+      animation: fadeUp 0.9s 0.1s ease both, nameGlow 4s 2s ease-in-out infinite alternate, nameBreath 8s 2s ease-in-out infinite;
       letter-spacing: 0.04em;
+      position: relative;
+    }
+
+    /* shimmer sweep pseudo-element */
+    .hero-name::after {
+      content: attr(data-text);
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        105deg,
+        transparent 20%,
+        rgba(255,230,140,0.55) 48%,
+        rgba(255,245,180,0.8) 50%,
+        rgba(255,230,140,0.55) 52%,
+        transparent 80%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 300% 100%;
+      background-position: 150% center;
+      animation: nameShimmer 6s 2.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes nameShimmer {
+      0%        { background-position: 200% center; opacity: 0; }
+      10%       { opacity: 1; }
+      50%       { background-position: -50% center; }
+      60%, 100% { background-position: -100% center; opacity: 0; }
+    }
+
+    @keyframes nameBreath {
+      0%, 100% { letter-spacing: 0.04em; }
+      50%      { letter-spacing: 0.07em; }
     }
 
     @keyframes nameGlow {
       from { text-shadow: 0 0 80px rgba(201,168,76,0.25), 0 2px 4px rgba(0,0,0,0.8); }
-      to   { text-shadow: 0 0 120px rgba(201,168,76,0.5), 0 0 40px rgba(201,168,76,0.2), 0 2px 4px rgba(0,0,0,0.8); }
+      to   { text-shadow: 0 0 120px rgba(201,168,76,0.6), 0 0 40px rgba(201,168,76,0.25), 0 2px 4px rgba(0,0,0,0.8); }
     }
 
     .hero-role {
@@ -767,7 +806,7 @@
     </svg>
 
     <p class="hero-eyebrow">Portfolio</p>
-    <h1 class="hero-name">Kevin D. Hernandez</h1>
+    <h1 class="hero-name" data-text="Kevin D. Hernandez">Kevin D. Hernandez</h1>
     <p class="hero-role">Computer Science &nbsp;·&nbsp; Data Science &nbsp;·&nbsp; ML / Computer Vision</p>
 
     <div class="divider-ornament"><span>✦</span></div>
